@@ -1,0 +1,14 @@
+changelog:
+  exclude:
+    labels:
+      - ignore-for-release
+  categories:
+    - title: New Features
+      labels:
+        - feature
+    - title: Bug fixes
+      labels:
+        - bug
+    - title: Others
+      labels:
+        - '*'
