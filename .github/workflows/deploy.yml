@@ -2,7 +2,7 @@ name: deploy-prod(자동)
 
 on:
   push:
-    tag:
+    tags:
       - v*
 
 permissions:
