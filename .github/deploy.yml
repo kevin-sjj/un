@@ -1,0 +1,29 @@
+name: deploy-prod(자동)
+
+on:
+  push:
+    tag:
+      - v*
+
+permissions:
+  id-token: write
+  contents: write
+
+jobs:
+  generate-tag-release-partner:
+    name: generate-tag-partner
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: print tag name
+        run: echo ${{ github.ref }}
+        
+      # 태그 생성 및 릴리즈 노트 작성
+      - name: Generate release
+        run: gh release create  --generate-notes
+        env:
+          GITHUB_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
