@@ -20,10 +20,9 @@ jobs:
           fetch-depth: 0
 
       - name: print tag name
-        run: echo ${{ github.ref }}
+        id: current-tag
+        run: echo "version=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
         
       # 태그 생성 및 릴리즈 노트 작성
       - name: Generate release
-        run: gh release create  --generate-notes
-        env:
-          GITHUB_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
+        run: gh release create ${{steps.current-tag.outputs.version}} --generate-notes
