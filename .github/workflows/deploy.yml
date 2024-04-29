@@ -26,3 +26,5 @@ jobs:
       # 태그 생성 및 릴리즈 노트 작성
       - name: Generate release
         run: gh release create ${{steps.current-tag.outputs.version}} --generate-notes
+        env:
+          GITHUB_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
