@@ -1,9 +1,31 @@
 name: deploy
 
 on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: '배포할 환경을 선택해주세요.'
+        required: true
+        default: 'develop'
+        type: choice
+        options:
+          - main
+          - cbt
+          - qa
+          - develop
+      version:
+        description: '배포할 버전을 입력해주세요.'
+        required: true
+        default: '1.0.0'
+        type: string
+      sequence:
+        description: '배포 시퀀스를 입력해주세요.'
+        required: true
+        default: '01'
+        type: string
   push:
-    tags:
-      - main-v*
+    branches:
+      - main
 
 jobs:
   generate-tag-release-partner:
@@ -28,13 +50,10 @@ jobs:
       - name: Install dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
-        
-      - name: Set phase from tag name
-        run: echo "PHASE=${GITHUB_REF##*/}" >> $GITHUB_OUTPUT
-        id: phase
-
-      - name: Build fanstore-admin
-        env:
-          PHASE: ${{ steps.phase.outputs.PHASE }}
+      
+      - name: Print inputs
         run: |
-          CI='' npm run build:"${{env.PHASE}}"
+          echo environment: ${{ inputs.environment }}
+          echo version: ${{ inputs.version }}
+          echo sequence: ${{ inputs.sequence }}
+      
