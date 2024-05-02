@@ -56,4 +56,4 @@ jobs:
           echo environment: ${{ inputs.environment }}
           echo version: ${{ inputs.version }}
           echo sequence: ${{ inputs.sequence }}
-      
+          echo branch: ${{ github.ref }}
