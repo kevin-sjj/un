@@ -29,6 +29,7 @@ on:
 
 jobs:
   generate-tag-release-partner:
+    if: github.ref_type == 'tag'
     name: generate-tag-partner
     runs-on: ubuntu-latest
 
