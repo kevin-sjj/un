@@ -1,13 +1,11 @@
-name: deploy-prod(자동)
+name: deploy
 
 on:
   push:
+    branches:
+      - main
     tags:
-      - v*
-
-permissions:
-  id-token: write
-  contents: write
+      - main-v*
 
 jobs:
   generate-tag-release-partner:
@@ -15,16 +13,30 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: print tag name
-        id: current-tag
-        run: echo "version=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        id: cache
+        with:
+          path: |
+            **/node_modules
+          key: npm-packages-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm ci
         
-      # 태그 생성 및 릴리즈 노트 작성
-      - name: Generate release
-        run: gh release create ${{steps.current-tag.outputs.version}} --generate-notes
+      - name: Set phase from tag name
+        run: echo "PHASE=${GITHUB_REF##*/}" >> $GITHUB_OUTPUT
+        id: phase
+
+      - name: Build fanstore-admin
         env:
-          GITHUB_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
+          PHASE: ${{ steps.phase.outputs.PHASE }}
+        run: |
+          CI='' npm run build:"${{env.PHASE}}"
