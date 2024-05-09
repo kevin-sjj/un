@@ -1,0 +1,63 @@
+name: deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: '배포할 환경을 선택해주세요.'
+        required: true
+        default: 'develop'
+        type: choice
+        options:
+          - main
+          - cbt
+          - qa
+          - develop
+      version:
+        description: '배포할 버전을 입력해주세요.'
+        required: true
+        default: '1.0.0'
+        type: string
+      sequence:
+        description: '배포 시퀀스를 입력해주세요.'
+        required: true
+        default: '01'
+        type: string
+  push:
+    branches:
+      - main
+
+jobs:
+  generate-tag-release-partner:
+    name: generate-tag-partner
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        id: cache
+        with:
+          path: |
+            **/node_modules
+          key: npm-packages-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm ci
+      
+      - name: Print inputs
+        run: |
+          echo environment: ${{ inputs.environment }}
+          echo version: ${{ inputs.version }}
+          echo sequence: ${{ inputs.sequence }}
+          echo github.ref: ${{ github.ref }}
+          echo github.ref_name: ${{ github.ref_name }}
+          echo github.ref_protected: ${{ github.ref_protected }}
+          echo github.ref_type: ${{ github.ref_type }}
+          echo startsWith ref/tags: ${{ startsWith(github.ref, 'refs/tags')  }}
